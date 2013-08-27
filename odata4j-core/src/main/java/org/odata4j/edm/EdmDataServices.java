@@ -62,7 +62,18 @@ public class EdmDataServices {
         .firstOrNull(new Predicate1<EdmEntitySet>() {
           @Override
           public boolean apply(EdmEntitySet input) {
-            return type.equals(input.getType());
+            boolean rv = false;
+        	  
+          	// travel up the inheritance chain to validate.
+          	// if type is a an instance or subclass of the input, return true.
+          	  
+          	EdmEntityType subclass = type;
+          	do {
+              rv = subclass.equals( input.getType() );
+              subclass = subclass.getBaseType();
+          	} while( !rv && null != subclass );
+          	
+          	return rv;
           }
         });
 
