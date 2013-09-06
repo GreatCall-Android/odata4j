@@ -4,7 +4,7 @@
 
   <groupId>org.odata4j</groupId>
   <artifactId>odata4j-parent</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.0-GreatCall</version>
   <packaging>pom</packaging>
 
   <description>odata4j</description>
@@ -77,6 +77,12 @@
       <name>Rolf Aden</name>
       <email>Mail.Rolf.Aden@googlemail.com</email>
     </developer>
+	<developer>
+      <id>christopher.vankirk</id>
+      <name>Christopher Van Kirk</name>
+      <email>christopher.vankirk@greactall.com</email>
+    </developer>
+
   </developers>
 
   <properties>

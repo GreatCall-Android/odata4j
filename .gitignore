@@ -1,0 +1,8 @@
+*.class
+odata4j-core/target/
+odata4j-cxf/target/
+odata4j-dist/target/
+odata4j-examples/target/classes/META-INF/northwind_insert.sql
+odata4j-examples/target/
+odata4j-fit/target/
+odata4j-jersey/target/
