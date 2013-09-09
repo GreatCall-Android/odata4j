@@ -6,3 +6,10 @@ odata4j-examples/target/classes/META-INF/northwind_insert.sql
 odata4j-examples/target/
 odata4j-fit/target/
 odata4j-jersey/target/
+odata4j-core/.settings/
+odata4j-cxf/.settings/
+odata4j-dist/.settings/
+odata4j-examples/.settings/
+odata4j-fit/.settings/
+odata4j-jersey/.settings/
+.settings/
