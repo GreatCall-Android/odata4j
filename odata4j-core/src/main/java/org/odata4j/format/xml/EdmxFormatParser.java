@@ -646,7 +646,7 @@ public class EdmxFormatParser extends XmlFormatParser {
       if (isEndElement(event2, startElement.getName())) {
         return EdmProperty.newBuilder(propertyName)
             .setType(EdmType.newDeferredBuilder(propertyType, dataServices))
-            .setNullable("true".equalsIgnoreCase(propertyNullable))
+            .setNullable( null == propertyNullable || "true".equalsIgnoreCase(propertyNullable))
             .setMaxLength(maxLength == null ? null : maxLength.equals("Max") ? Integer.MAX_VALUE : Integer.parseInt(maxLength))
             .setUnicode(unicode == null ? null : "true".equalsIgnoreCase(unicode))
             .setFixedLength(fixedLength == null ? null : "true".equalsIgnoreCase(fixedLength))
