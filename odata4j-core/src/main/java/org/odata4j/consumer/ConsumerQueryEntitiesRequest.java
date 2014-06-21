@@ -1,5 +1,7 @@
 package org.odata4j.consumer;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URLDecoder;
 import java.util.Iterator;
 
@@ -53,17 +55,30 @@ public class ConsumerQueryEntitiesRequest<T> extends AbstractConsumerQueryReques
   }
 
   private Feed doRequest(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = getClient().getEntities(request);
+	ODataClientResponse response = null;
+	Reader reader = null;
+	
+	try {
+      response = getClient().getEntities(request);
 
-    ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders()
+      ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders()
         .getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
 
-    FormatParser<Feed> parser = FormatParserFactory.getParser(Feed.class, getClient().getFormatType(),
+      FormatParser<Feed> parser = FormatParserFactory.getParser(Feed.class, getClient().getFormatType(),
         new Settings(version, getMetadata(), getEntitySet().getName(), null));
 
-    Feed feed = parser.parse(getClient().getFeedReader(response));
-    response.close();
-    return feed;
+      reader = getClient().getFeedReader(response);
+      Feed feed = parser.parse(reader);
+    
+      return feed;
+	} finally {
+	  if( response != null ) response.close();
+	  try {
+	    if( reader != null ) reader.close();
+	  } catch( IOException e ) {
+	    e.printStackTrace();
+	  }
+	}
   }
 
   private class EntryIterator extends ReadOnlyIterator<Entry> {

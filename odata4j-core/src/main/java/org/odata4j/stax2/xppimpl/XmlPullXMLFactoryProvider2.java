@@ -137,6 +137,11 @@ public class XmlPullXMLFactoryProvider2 extends XMLFactoryProvider2 {
         advance();
       return new XmlPullXMLEvent2(xpp);
     }
+    
+    @Override
+    public void close() {
+    	// nothing to close
+    }
 
     private int advance() {
       try {

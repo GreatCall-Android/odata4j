@@ -8,4 +8,5 @@ public interface XMLEventReader2 {
 
   String getElementText();
 
+  void close();
 }

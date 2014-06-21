@@ -114,6 +114,14 @@ public class StaxXMLFactoryProvider2 extends XMLFactoryProvider2 {
       }
     }
 
+    @Override
+    public void close() {
+    	try {
+			if( real != null ) real.close();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		}
+    }
   }
 
   @Override

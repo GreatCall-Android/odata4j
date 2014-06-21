@@ -1,5 +1,6 @@
 package org.odata4j.jersey.consumer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -76,10 +77,14 @@ class ODataJerseyClient extends AbstractODataClient {
   }
 
   public String requestBody(FormatType formatType, ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(formatType, request, Status.OK);
-    String entity = ((JerseyClientResponse) response).getClientResponse().getEntity(String.class);
-    response.close();
-    return entity;
+	ODataClientResponse response = null;
+    try {
+      response = doRequest(formatType, request, Status.OK);
+      String entity = ((JerseyClientResponse) response).getClientResponse().getEntity(String.class);
+      return entity;
+    } finally {
+      if( response != null ) response.close();
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -126,6 +131,12 @@ class ODataJerseyClient extends AbstractODataClient {
       fw.write(null, sw, request.getPayload());
 
       String entity = sw.toString();
+      try {
+    	  if( sw != null ) sw.close();
+      } catch (IOException e) {
+    	  e.printStackTrace();
+      }
+      
       if (ODataConsumer.dump.requestBody())
         dump(entity);
 

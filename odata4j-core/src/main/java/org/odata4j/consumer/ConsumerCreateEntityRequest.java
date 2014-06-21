@@ -1,5 +1,8 @@
 package org.odata4j.consumer;
 
+import java.io.IOException;
+import java.io.Reader;
+
 import org.core4j.Enumerable;
 import org.odata4j.core.OCreateRequest;
 import org.odata4j.core.ODataConstants;
@@ -46,19 +49,31 @@ public class ConsumerCreateEntityRequest<T> extends AbstractConsumerEntityPayloa
     } else {
       url.append(entitySetName);
     }
-
+    
     ODataClientRequest request = ODataClientRequest.post(url.toString(), entry);
-    ODataClientResponse response = client.createEntity(request);
 
-    ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders()
-        .getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
-
-    FormatParser<Entry> parser = FormatParserFactory.getParser(Entry.class,
-        client.getFormatType(), new Settings(version, metadata, entitySetName, null));
-    entry = parser.parse(client.getFeedReader(response));
-    response.close();
-
-    return (T) entry.getEntity();
+    ODataClientResponse response = null;
+    Reader reader = null;
+    try {
+	    response = client.createEntity(request);
+	
+	    ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders()
+	        .getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
+	
+	    FormatParser<Entry> parser = FormatParserFactory.getParser(Entry.class,
+	    		client.getFormatType(), new Settings(version, metadata, entitySetName, null));
+	    
+	    reader = client.getFeedReader(response);
+	    entry = parser.parse( reader );
+	    return (T) entry.getEntity();
+    } finally {
+    	if( response != null ) response.close();
+    	try {
+    		if( reader != null ) reader.close();
+    	} catch( IOException e ) {
+	    	e.printStackTrace();
+	    }
+    }
   }
 
   @SuppressWarnings("unchecked")

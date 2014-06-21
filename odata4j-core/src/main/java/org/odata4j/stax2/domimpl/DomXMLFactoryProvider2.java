@@ -1,5 +1,6 @@
 package org.odata4j.stax2.domimpl;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -96,6 +97,12 @@ public class DomXMLFactoryProvider2 extends XMLFactoryProvider2 {
         return new DomXMLEventReader2(document);
       } catch (Exception e) {
         throw Throwables.propagate(e);
+      } finally {
+    	  try {
+    		  if( reader != null ) reader.close();
+    	  } catch ( IOException e ) {
+    		  e.printStackTrace();
+    	  }
       }
 
     }
@@ -125,6 +132,11 @@ public class DomXMLFactoryProvider2 extends XMLFactoryProvider2 {
     @Override
     public XMLEvent2 nextEvent() {
       return iterator.next();
+    }
+    
+    @Override
+    public void close() {
+    	// nothing to close
     }
 
     private class EventIterator extends ReadOnlyIterator<XMLEvent2> {
