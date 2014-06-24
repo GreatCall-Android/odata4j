@@ -1,6 +1,5 @@
 package org.odata4j.consumer;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -13,6 +12,7 @@ import org.core4j.Enumerable;
 import org.core4j.Func;
 import org.core4j.ReadOnlyIterator;
 import org.joda.time.LocalDateTime;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.Guid;
 import org.odata4j.core.OCollection;
 import org.odata4j.core.ODataConstants;
@@ -207,12 +207,8 @@ public class ConsumerFunctionCallRequest<T extends OObject>
 	  OObject object = parser.parse( reader );
 	  return object;
 	} finally {
-	  if( response != null ) response.close();
-	  try {
-	    if( reader != null ) reader.close();
-	  } catch( IOException e ) {
-		e.printStackTrace();
-	  }
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
 	}
   }
 

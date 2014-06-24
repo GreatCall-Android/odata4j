@@ -1,10 +1,12 @@
 package org.odata4j.jersey.consumer;
 
+import java.io.Closeable;
 import java.lang.reflect.Field;
 import java.util.Set;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import org.odata4j.consumer.ODataClientResponse;
 import org.odata4j.consumer.behaviors.OClientBehavior;
 import org.odata4j.core.Throwables;
 import org.odata4j.internal.PlatformUtil;
@@ -12,6 +14,7 @@ import org.odata4j.jersey.consumer.behaviors.JerseyClientBehavior;
 import org.odata4j.jersey.internal.StringProvider2;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.impl.provider.header.MediaTypeProvider;
@@ -19,6 +22,7 @@ import com.sun.jersey.core.spi.factory.AbstractRuntimeDelegate;
 import com.sun.jersey.spi.HeaderDelegateProvider;
 
 class JerseyClientUtil {
+  private static final String ERROR_MESSAGE = "ERROR ON STREAM CLOSURE, A FILE HANDLE MAY HAVE LEAKED!!!";
 
   static {
     if (PlatformUtil.runningOnAndroid())
@@ -61,6 +65,33 @@ class JerseyClientUtil {
       }
     }
     return client;
+  }
+  
+  public static void closeClientResponse( ClientResponse reponse ) {
+	if( reponse == null ) return;
+	try {
+	  reponse.close();
+	} catch( Throwable t ) {
+	  new Throwable( ERROR_MESSAGE, t ).printStackTrace();
+	}
+  }
+  
+  public static void closeClientResponse( ODataClientResponse reponse ) {
+    if( reponse == null ) return;
+	try {
+	  reponse.close();
+	} catch( Throwable t ) {
+	  new Throwable( ERROR_MESSAGE, t ).printStackTrace();
+	}
+  }
+  
+  public static void closeStream( Closeable stream ) {
+	if( stream == null ) return;
+	try {
+	  stream.close();
+	} catch( Throwable t ) {
+	  new Throwable( ERROR_MESSAGE, t ).printStackTrace();
+	}
   }
 
   public static WebResource resource(Client client, String url, OClientBehavior[] behaviors) {

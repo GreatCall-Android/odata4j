@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.odata4j.consumer.util.StreamUtils;
+
 import com.sun.jersey.core.provider.AbstractMessageReaderWriterProvider;
 import com.sun.jersey.core.util.ReaderWriter;
 
@@ -42,7 +44,7 @@ public final class StringProvider2 extends AbstractMessageReaderWriterProvider<S
 		osw.write(t);
 		osw.flush();
 	} finally {
-		if( osw != null ) osw.close();
+		StreamUtils.closeStream( osw );
 	}
   }
 }

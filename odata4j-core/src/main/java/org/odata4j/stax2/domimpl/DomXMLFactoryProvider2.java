@@ -1,6 +1,5 @@
 package org.odata4j.stax2.domimpl;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -9,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.core4j.Enumerable;
 import org.core4j.ReadOnlyIterator;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.Throwables;
 import org.odata4j.internal.AndroidCompat;
 import org.odata4j.stax2.Attribute2;
@@ -98,11 +98,7 @@ public class DomXMLFactoryProvider2 extends XMLFactoryProvider2 {
       } catch (Exception e) {
         throw Throwables.propagate(e);
       } finally {
-    	  try {
-    		  if( reader != null ) reader.close();
-    	  } catch ( IOException e ) {
-    		  e.printStackTrace();
-    	  }
+    	  StreamUtils.closeStream( reader );
       }
 
     }

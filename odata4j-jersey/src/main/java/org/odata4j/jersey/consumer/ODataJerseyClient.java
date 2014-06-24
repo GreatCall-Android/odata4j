@@ -1,6 +1,5 @@
 package org.odata4j.jersey.consumer;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -83,7 +82,7 @@ class ODataJerseyClient extends AbstractODataClient {
       String entity = ((JerseyClientResponse) response).getClientResponse().getEntity(String.class);
       return entity;
     } finally {
-      if( response != null ) response.close();
+      JerseyClientUtil.closeClientResponse( response );
     }
   }
 
@@ -125,27 +124,30 @@ class ODataJerseyClient extends AbstractODataClient {
       else
         throw new IllegalArgumentException("Unsupported payload: " + request.getPayload());
 
-      StringWriter sw = new StringWriter();
-      FormatWriter<Object> fw = (FormatWriter<Object>)
-          FormatWriterFactory.getFormatWriter(payloadClass, null, this.getFormatType().toString(), null);
-      fw.write(null, sw, request.getPayload());
-
-      String entity = sw.toString();
+      String entity;
+      StringWriter sw = null;
+      FormatWriter<Object> fw;
       try {
-    	  if( sw != null ) sw.close();
-      } catch (IOException e) {
-    	  e.printStackTrace();
+	    sw = new StringWriter();
+	    fw = (FormatWriter<Object>)
+	        FormatWriterFactory.getFormatWriter(payloadClass, null, this.getFormatType().toString(), null);
+	    fw.write(null, sw, request.getPayload());
+	
+	    entity = sw.toString();
+	    sw.flush();
+      } finally {
+	    JerseyClientUtil.closeStream( sw );
       }
-      
-      if (ODataConsumer.dump.requestBody())
-        dump(entity);
-
-      // allow the client to override the default format writer content-type
-      String contentType = request.getHeaders().containsKey(ODataConstants.Headers.CONTENT_TYPE)
-          ? request.getHeaders().get(ODataConstants.Headers.CONTENT_TYPE)
-          : fw.getContentType();
-
-      b.entity(entity, contentType);
+	      
+	  if (ODataConsumer.dump.requestBody())
+	    dump(entity);
+	
+	  // allow the client to override the default format writer content-type
+	  String contentType = request.getHeaders().containsKey(ODataConstants.Headers.CONTENT_TYPE)
+	      ? request.getHeaders().get(ODataConstants.Headers.CONTENT_TYPE)
+	      : fw.getContentType();
+	
+	  b.entity(entity, contentType);
     }
 
     // execute request

@@ -25,6 +25,6 @@ public class JerseyClientResponse implements ODataClientResponse {
 
   @Override
   public void close() {
-	  clientResponse.close();
+	  JerseyClientUtil.closeClientResponse( clientResponse );
   }
 }

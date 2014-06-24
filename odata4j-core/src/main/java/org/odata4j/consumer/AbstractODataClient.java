@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 
 import org.core4j.Enumerable;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.OEntities;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OEntityKey;
@@ -48,8 +49,8 @@ public abstract class AbstractODataClient implements ODataClient {
       EdmDataServices metadata = new EdmxFormatParser().parseMetadata(reader);
       return metadata;
 	} finally {
-      if( response != null ) response.close();
-      if( reader != null ) reader.close();
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -63,8 +64,8 @@ public abstract class AbstractODataClient implements ODataClient {
         .selectMany(AtomWorkspaceInfo.GET_COLLECTIONS);
       return collections;
 	} finally {
-	  if( response != null ) response.close();
-	  if( reader != null ) reader.close();
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -77,8 +78,8 @@ public abstract class AbstractODataClient implements ODataClient {
       Iterable<SingleLink> links = AtomSingleLinkFormatParser.parseLinks(reader);
       return links;
 	} finally {
-	  if( response != null ) response.close();
-      if( reader != null ) reader.close();
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -103,7 +104,7 @@ public abstract class AbstractODataClient implements ODataClient {
 	try {
 	  response = doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT); 
 	} finally {
-	  if( response != null ) response.close();
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -112,7 +113,7 @@ public abstract class AbstractODataClient implements ODataClient {
 	try {
 	  response = doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT); 
 	} finally {
-		if( response != null ) response.close();
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -121,7 +122,7 @@ public abstract class AbstractODataClient implements ODataClient {
 	try {
 	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
 	} finally {
-		if( response != null ) response.close();
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -130,7 +131,7 @@ public abstract class AbstractODataClient implements ODataClient {
 	try {
 	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
 	} finally {
-		if( response != null ) response.close();
+		StreamUtils.closeStream( response );
 	}
   }
 
@@ -139,7 +140,7 @@ public abstract class AbstractODataClient implements ODataClient {
 	try {
 	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
 	} finally {
-		if( response != null ) response.close();
+		StreamUtils.closeStream( response );
 	}
   }
 

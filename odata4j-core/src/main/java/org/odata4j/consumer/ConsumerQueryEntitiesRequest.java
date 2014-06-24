@@ -1,6 +1,5 @@
 package org.odata4j.consumer;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.net.URLDecoder;
 import java.util.Iterator;
@@ -9,6 +8,7 @@ import org.core4j.Enumerable;
 import org.core4j.Func;
 import org.core4j.Func1;
 import org.core4j.ReadOnlyIterator;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataConstants.Charsets;
 import org.odata4j.core.ODataVersion;
@@ -72,12 +72,8 @@ public class ConsumerQueryEntitiesRequest<T> extends AbstractConsumerQueryReques
     
       return feed;
 	} finally {
-	  if( response != null ) response.close();
-	  try {
-	    if( reader != null ) reader.close();
-	  } catch( IOException e ) {
-	    e.printStackTrace();
-	  }
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
 	}
   }
 

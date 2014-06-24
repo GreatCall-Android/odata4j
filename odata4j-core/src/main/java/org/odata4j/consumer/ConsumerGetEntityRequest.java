@@ -1,9 +1,9 @@
 package org.odata4j.consumer;
 
-import java.io.IOException;
 import java.io.Reader;
 
 import org.core4j.Enumerable;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.OEntityGetRequest;
 import org.odata4j.core.OEntityKey;
@@ -90,12 +90,8 @@ public class ConsumerGetEntityRequest<T> extends AbstractConsumerEntityRequest<T
 
       return (T) InternalUtil.toEntity(entityType, entry.getEntity());
     } finally {
-      if( response != null ) response.close();
-      try {
-        if( reader != null ) reader.close();
-      } catch( IOException e ) {
-       	e.printStackTrace();
-      }
+    	StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
     }
   }
 }
