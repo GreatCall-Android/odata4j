@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.odata4j</groupId>
     <artifactId>odata4j-parent</artifactId>
-    <version>0.8.0-GreatCall</version>
+    <version>0.9.0-GreatCall</version>
     <relativePath>..</relativePath>
   </parent>
 
