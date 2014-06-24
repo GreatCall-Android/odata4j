@@ -21,6 +21,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.core4j.Enumerable;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.Throwables;
 import org.odata4j.stax2.Attribute2;
 import org.odata4j.stax2.Characters2;
@@ -114,6 +115,10 @@ public class StaxXMLFactoryProvider2 extends XMLFactoryProvider2 {
       }
     }
 
+    @Override
+    public void close() {
+    	StreamUtils.closeStream( real );
+    }
   }
 
   @Override

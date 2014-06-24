@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 
 import org.core4j.Enumerable;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.OEntities;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OEntityKey;
@@ -40,30 +41,50 @@ public abstract class AbstractODataClient implements ODataClient {
   }
 
   public EdmDataServices getMetadata(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(FormatType.ATOM, request, Status.OK);
-    EdmDataServices metadata = new EdmxFormatParser().parseMetadata(toXml(response));
-    response.close();
-    return metadata;
+	ODataClientResponse response = null;
+	XMLEventReader2 reader = null;
+	try {
+      response = doRequest(FormatType.ATOM, request, Status.OK);
+      reader = toXml(response);
+      EdmDataServices metadata = new EdmxFormatParser().parseMetadata(reader);
+      return metadata;
+	} finally {
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
+	}
   }
 
   public Iterable<AtomCollectionInfo> getCollections(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(FormatType.ATOM, request, Status.OK);
-    Enumerable<AtomCollectionInfo> collections = Enumerable.create(AtomServiceDocumentFormatParser.parseWorkspaces(toXml(response)))
+	ODataClientResponse response = null;
+	XMLEventReader2 reader = null;
+	try {
+      response = doRequest(FormatType.ATOM, request, Status.OK);
+      reader = toXml(response);
+      Enumerable<AtomCollectionInfo> collections = Enumerable.create(AtomServiceDocumentFormatParser.parseWorkspaces( reader ))
         .selectMany(AtomWorkspaceInfo.GET_COLLECTIONS);
-    response.close();
-    return collections;
+      return collections;
+	} finally {
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
+	}
   }
 
   public Iterable<SingleLink> getLinks(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(FormatType.ATOM, request, Status.OK);
-    Iterable<SingleLink> links = AtomSingleLinkFormatParser.parseLinks(toXml(response));
-    response.close();
-    return links;
+	ODataClientResponse response = null;
+	XMLEventReader2 reader = null;
+	try {
+      response = doRequest(FormatType.ATOM, request, Status.OK);
+      reader = toXml(response);
+      Iterable<SingleLink> links = AtomSingleLinkFormatParser.parseLinks(reader);
+      return links;
+	} finally {
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
+	}
   }
 
   public ODataClientResponse getEntity(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT);
-    return response;
+    return doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT);
   }
 
   public ODataClientResponse getEntities(ODataClientRequest request) throws ODataProducerException {
@@ -79,23 +100,48 @@ public abstract class AbstractODataClient implements ODataClient {
   }
 
   public void updateEntity(ODataClientRequest request) throws ODataProducerException {
-    doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT).close();
+	ODataClientResponse response = null;
+	try {
+	  response = doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT); 
+	} finally {
+		StreamUtils.closeStream( response );
+	}
   }
 
   public void deleteEntity(ODataClientRequest request) throws ODataProducerException {
-    doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT).close();
+    ODataClientResponse response = null;
+	try {
+	  response = doRequest(getFormatType(), request, Status.OK, Status.NO_CONTENT); 
+	} finally {
+		StreamUtils.closeStream( response );
+	}
   }
 
   public void deleteLink(ODataClientRequest request) throws ODataProducerException {
-    doRequest(getFormatType(), request, Status.NO_CONTENT).close();
+    ODataClientResponse response = null;
+	try {
+	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
+	} finally {
+		StreamUtils.closeStream( response );
+	}
   }
 
   public void createLink(ODataClientRequest request) throws ODataProducerException {
-    doRequest(getFormatType(), request, Status.NO_CONTENT).close();
+	ODataClientResponse response = null;
+	try {
+	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
+	} finally {
+		StreamUtils.closeStream( response );
+	}
   }
 
   public void updateLink(ODataClientRequest request) throws ODataProducerException {
-    doRequest(getFormatType(), request, Status.NO_CONTENT).close();
+	ODataClientResponse response = null;
+	try {
+	  response = doRequest(getFormatType(), request, Status.NO_CONTENT); 
+	} finally {
+		StreamUtils.closeStream( response );
+	}
   }
 
   public Entry createRequestEntry(EdmEntitySet entitySet, OEntityKey entityKey, List<OProperty<?>> props, List<OLink> links) {

@@ -76,10 +76,14 @@ class ODataJerseyClient extends AbstractODataClient {
   }
 
   public String requestBody(FormatType formatType, ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = doRequest(formatType, request, Status.OK);
-    String entity = ((JerseyClientResponse) response).getClientResponse().getEntity(String.class);
-    response.close();
-    return entity;
+	ODataClientResponse response = null;
+    try {
+      response = doRequest(formatType, request, Status.OK);
+      String entity = ((JerseyClientResponse) response).getClientResponse().getEntity(String.class);
+      return entity;
+    } finally {
+      JerseyClientUtil.closeClientResponse( response );
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -120,21 +124,30 @@ class ODataJerseyClient extends AbstractODataClient {
       else
         throw new IllegalArgumentException("Unsupported payload: " + request.getPayload());
 
-      StringWriter sw = new StringWriter();
-      FormatWriter<Object> fw = (FormatWriter<Object>)
-          FormatWriterFactory.getFormatWriter(payloadClass, null, this.getFormatType().toString(), null);
-      fw.write(null, sw, request.getPayload());
-
-      String entity = sw.toString();
-      if (ODataConsumer.dump.requestBody())
-        dump(entity);
-
-      // allow the client to override the default format writer content-type
-      String contentType = request.getHeaders().containsKey(ODataConstants.Headers.CONTENT_TYPE)
-          ? request.getHeaders().get(ODataConstants.Headers.CONTENT_TYPE)
-          : fw.getContentType();
-
-      b.entity(entity, contentType);
+      String entity;
+      StringWriter sw = null;
+      FormatWriter<Object> fw;
+      try {
+	    sw = new StringWriter();
+	    fw = (FormatWriter<Object>)
+	        FormatWriterFactory.getFormatWriter(payloadClass, null, this.getFormatType().toString(), null);
+	    fw.write(null, sw, request.getPayload());
+	
+	    entity = sw.toString();
+	    sw.flush();
+      } finally {
+	    JerseyClientUtil.closeStream( sw );
+      }
+	      
+	  if (ODataConsumer.dump.requestBody())
+	    dump(entity);
+	
+	  // allow the client to override the default format writer content-type
+	  String contentType = request.getHeaders().containsKey(ODataConstants.Headers.CONTENT_TYPE)
+	      ? request.getHeaders().get(ODataConstants.Headers.CONTENT_TYPE)
+	      : fw.getContentType();
+	
+	  b.entity(entity, contentType);
     }
 
     // execute request

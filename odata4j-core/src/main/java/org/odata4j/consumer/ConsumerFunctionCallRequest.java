@@ -1,5 +1,6 @@
 package org.odata4j.consumer;
 
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
@@ -11,6 +12,7 @@ import org.core4j.Enumerable;
 import org.core4j.Func;
 import org.core4j.ReadOnlyIterator;
 import org.joda.time.LocalDateTime;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.Guid;
 import org.odata4j.core.OCollection;
 import org.odata4j.core.ODataConstants;
@@ -184,24 +186,30 @@ public class ConsumerFunctionCallRequest<T extends OObject>
   }
 
   private OObject doRequest(ODataClientRequest request) throws ODataProducerException {
-    ODataClientResponse response = getClient().callFunction(request);
-
-    ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders().getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
-
-    FormatParser<? extends OObject> parser = FormatParserFactory.getParser(
-        function.getReturnType().isSimple() ? OSimpleObject.class : EdmType.getInstanceType(function.getReturnType()),
-        getClient().getFormatType(),
-        new Settings(
-            version,
-            getMetadata(),
-            function.getName(),
-            null, // entitykey
-            true, // isResponse
-            function.getReturnType()));
-
-    OObject object = parser.parse(getClient().getFeedReader(response));
-    response.close();
-    return object;
+	ODataClientResponse response = null;
+	Reader reader = null;
+	try { 
+	  response = getClient().callFunction(request);
+	  ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders().getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
+	
+	  FormatParser<? extends OObject> parser = FormatParserFactory.getParser(
+	    function.getReturnType().isSimple() ? OSimpleObject.class : EdmType.getInstanceType(function.getReturnType()),
+	    getClient().getFormatType(),
+	    new Settings(
+	        version,
+	        getMetadata(),
+	        function.getName(),
+	        null, // entitykey
+	        true, // isResponse
+	        function.getReturnType()));
+	
+	  reader = getClient().getFeedReader(response);
+	  OObject object = parser.parse( reader );
+	  return object;
+	} finally {
+		StreamUtils.closeStream( reader );
+		StreamUtils.closeStream( response );
+	}
   }
 
   private class FunctionResultsIterator extends ReadOnlyIterator<OObject> {

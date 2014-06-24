@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.core4j.Enumerable;
 import org.core4j.ReadOnlyIterator;
+import org.odata4j.consumer.util.StreamUtils;
 import org.odata4j.core.Throwables;
 import org.odata4j.internal.AndroidCompat;
 import org.odata4j.stax2.Attribute2;
@@ -96,6 +97,8 @@ public class DomXMLFactoryProvider2 extends XMLFactoryProvider2 {
         return new DomXMLEventReader2(document);
       } catch (Exception e) {
         throw Throwables.propagate(e);
+      } finally {
+    	  StreamUtils.closeStream( reader );
       }
 
     }
@@ -125,6 +128,11 @@ public class DomXMLFactoryProvider2 extends XMLFactoryProvider2 {
     @Override
     public XMLEvent2 nextEvent() {
       return iterator.next();
+    }
+    
+    @Override
+    public void close() {
+    	// nothing to close
     }
 
     private class EventIterator extends ReadOnlyIterator<XMLEvent2> {

@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.odata4j.consumer.util.StreamUtils;
+
 import com.sun.jersey.core.provider.AbstractMessageReaderWriterProvider;
 import com.sun.jersey.core.util.ReaderWriter;
 
@@ -36,9 +38,13 @@ public final class StringProvider2 extends AbstractMessageReaderWriterProvider<S
   public void writeTo(String t, Class<?> type, Type genericType, Annotation annotations[], MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
     // writeToAsString(t, entityStream, mediaType);
 
-    Writer osw = new BufferedWriter(new OutputStreamWriter(entityStream, ReaderWriter.getCharset(mediaType)), 8 * 1024); // explicit 8k size FOR ANDROID
-    osw.write(t);
-    osw.flush();
+	Writer osw = null;
+	try {
+		osw = new BufferedWriter(new OutputStreamWriter(entityStream, ReaderWriter.getCharset(mediaType)), 8 * 1024); // explicit 8k size FOR ANDROID
+		osw.write(t);
+		osw.flush();
+	} finally {
+		StreamUtils.closeStream( osw );
+	}
   }
-
 }
