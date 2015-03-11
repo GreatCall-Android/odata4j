@@ -68,6 +68,8 @@ public class InternalUtil {
   private static final String DATETIME_JSON_SUFFIX = ")\\/\"";
   private static final String DATETIME_JSON_PREFIX = "\"\\/Date(";
 
+  private static final String SERVER_TIME_ZONE = "GMT";
+
   public static LocalDateTime parseDateTimeFromXml(String value) {
     value = normalizeXmlValue(value);
     Matcher matcher = DATETIME_XML_PATTERN.matcher(value);
@@ -84,12 +86,12 @@ public class InternalUtil {
     	seconds = ":00";
 
       if (nanoSeconds == null)
-        return DATETIME_WITH_SECONDS_XML.parseDateTime(dateTime + seconds).toLocalDateTime();
+        return DATETIME_WITH_SECONDS_XML.withZone(DateTimeZone.forID(SERVER_TIME_ZONE)).parseDateTime(dateTime + seconds).toLocalDateTime();
 
       if (nanoSeconds.length() <= 4)
-        return DATETIME_WITH_MILLIS_XML.parseDateTime(dateTime + seconds + nanoSeconds).toLocalDateTime();
+        return DATETIME_WITH_MILLIS_XML.withZone(DateTimeZone.forID(SERVER_TIME_ZONE)).parseDateTime(dateTime + seconds + nanoSeconds).toLocalDateTime();
 
-      return adjustMillis(DATETIME_WITH_MILLIS_XML.parseDateTime(dateTime + seconds + nanoSeconds.substring(0, 4)), nanoSeconds).toLocalDateTime();
+      return adjustMillis(DATETIME_WITH_MILLIS_XML.withZone(DateTimeZone.forID(SERVER_TIME_ZONE)).parseDateTime(dateTime + seconds + nanoSeconds.substring(0, 4)), nanoSeconds).toLocalDateTime();
     }
     throw new IllegalArgumentException("Illegal datetime format " + value);
   }
@@ -132,7 +134,7 @@ public class InternalUtil {
   public static LocalDateTime parseDateTimeFromJson(String value) {
     DateTime dateTime = parseDateString(value);
     if (dateTime != null)
-      return dateTime.toLocalDateTime();
+      return dateTime.withZone(DateTimeZone.forID(SERVER_TIME_ZONE)).toLocalDateTime();
     else
       // required to support datajs clients (although not spec compliant)
       return InternalUtil.parseDateTimeFromXml(value);
